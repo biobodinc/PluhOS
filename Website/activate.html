@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://w3schools.com/w3css/5/w3.css">
+    <style>
+        .error { color: red; margin: 10px; }
+        .success { color: green; margin: 10px; }
+    </style>
+</head>
+<body>
+    <center>
+        <h1>Activate your PluhOS device</h1>
+        <p>Please Enter your PluhOS activation code given in the setup terminal</p>
+        
+        <form id="codeForm">
+            <input type="text" id="activationCode" placeholder="XXXXXXXX" required>  
+            <button class="w3-red" type="submit">Enter</button>
+        </form>
+        
+        <div id="message"></div>
+    </center>
+
+    <script>
+        document.getElementById('codeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const code = document.getElementById('activationCode').value;
+            const messageDiv = document.getElementById('message');
+            
+            // Store code in sessionStorage for the login page
+            sessionStorage.setItem('activationCode', code);
+            
+            // Check if code exists
+            try {
+                const response = await fetch(`/api/activation/check/${code}`);
+                const data = await response.json();
+                
+                if (data.activated === false && data.message !== 'Invalid code') {
+                    // Code is valid but not activated yet, go to login
+                    window.location.href = '/Signin/login.html';
+                } else if (data.message === 'Invalid code') {
+                    messageDiv.innerHTML = '<p class="error">Invalid activation code. Please check your terminal.</p>';
+                } else {
+                    messageDiv.innerHTML = '<p class="success">This code is already activated!</p>';
+                }
+            } catch (error) {
+                messageDiv.innerHTML = '<p class="error">Error checking code. Please try again.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

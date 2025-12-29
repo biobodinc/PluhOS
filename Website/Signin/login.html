@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<center>
+<script src="accounts.google.com" async defer></script>
+<script src="login/google.js"></script>
+<h1>Login</h1>
+<a href="/activate.html">
+<button>go back</button>
+</a>
+<form id="loginForm"> 
+    <p>Email</p>
+    <input type="email" required id="ememe">
+    <p>Password</p>
+    <input type="password" required id="pspss">
+    <br>
+    <div id="message" style="color: red; margin: 10px;"></div>
+    <button type="submit">Login</button>
+</form>
+<script>
+    const activationCode = sessionStorage.getItem('activationCode');
+    
+    if (!activationCode) {
+        alert('No activation code found. Please start from the activation page.');
+        window.location.href = '/activate.html';
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('ememe').value;
+        const password = document.getElementById('pspss').value;
+        const messageDiv = document.getElementById('message');
+        
+        messageDiv.textContent = 'Processing...';
+        messageDiv.style.color = 'blue';
+        
+        try {
+            const response = await fetch('/api/activation/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: activationCode, email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                messageDiv.textContent = 'Success! Redirecting...';
+                messageDiv.style.color = 'green';
+                sessionStorage.removeItem('activationCode');
+                setTimeout(() => {
+                    window.location.href = '/actidone.html';
+                }, 1000);
+            } else {
+                messageDiv.textContent = data.message || 'Login failed';
+                messageDiv.style.color = 'red';
+            }
+        } catch (error) {
+            messageDiv.textContent = 'Network error. Please try again.';
+            messageDiv.style.color = 'red';
+        }
+    });
+</script>
+<p>Don't have an account?</p>
+<html>
+  <body>
+    <script src="https://accounts.google.com/gsi/client" async></script>
+    <div id="g_id_onload"
+        data-client_id="10414691088-gkp62j4hpismt8976cju3tovcklgob7v.apps.googleusercontent.com"
+        data-login_uri="https://pluhos.biobod.net/actidone.html"
+        data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+        data-type="standard"
+        data-size="large"
+        data-theme="outline"
+        data-text="sign_in_with"
+        data-shape="rectangular"
+        data-logo_alignment="left">
+    </div>
+  <body>
+</html>
+<a href="page2.html">
+    <button onclick="alert('You are about to leave the page');">create one here</button>
+</a>
+</center>
